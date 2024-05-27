@@ -52,7 +52,7 @@ pub mod crowdfunding {
 
         msg!("Campaign deadline: {}", campaign.deadline);
         msg!("Current timestamp: {}", Clock::get()?.unix_timestamp);
-        
+
         require!(campaign.deadline > Clock::get()?.unix_timestamp, CFError::CampaignEnded);
 
 
@@ -85,16 +85,6 @@ pub mod crowdfunding {
         require!(campaign.deadline < Clock::get()?.unix_timestamp, CFError::CampaignStillActive);
         require!(campaign.raised_amount >= campaign.goal, CFError::GoalNotReached);
 
-        // let cpi_context = CpiContext::new(
-        //     ctx.accounts.token_program.clone(),
-        //     anchor_spl::token::Transfer {
-        //         from: ctx.accounts.campaign_token_account.to_account_info(),
-        //         to: ctx.accounts.authority_token_account.to_account_info(),
-        //         authority: ctx.accounts.campaign.to_account_info(),
-        //     },
-        // );
-        // anchor_spl::token::transfer(cpi_context, campaign.raised_amount)?;
-
         let rent_balance = Rent::get()?.minimum_balance(campaign.to_account_info().data_len());
         msg!("campaign.raised_amount = {}, rent_balance = {}", campaign.raised_amount, rent_balance);
         let amount = campaign.raised_amount.checked_sub(rent_balance).unwrap();
@@ -120,7 +110,6 @@ pub struct Initialize<'info> {
             // url.as_bytes(),
             url_seed.as_bytes(),
             CF_SEED.as_bytes(),
-            // CF_SEED.as_ref(),
             authority.key().as_ref()
         ], bump)]
     pub campaign: Account<'info, Campaign>,
@@ -135,11 +124,6 @@ pub struct Contribute<'info> {
     pub campaign: Account<'info, Campaign>,
     #[account(mut)]
     pub contributor: Signer<'info>,
-    // #[account(mut)]
-    // pub contributor_token_account: Account<'info, anchor_spl::token::TokenAccount>,
-    // #[account(mut)]
-    // pub campaign_token_account: Account<'info, anchor_spl::token::TokenAccount>,
-    // pub token_program: Program<'info, anchor_spl::token::Token>,
     pub system_program: Program<'info, System>,
 }
 
@@ -149,11 +133,6 @@ pub struct Withdraw<'info> {
     pub campaign: Account<'info, Campaign>,
     #[account(mut)]
     pub authority: Signer<'info>,
-    // #[account(mut)]
-    // pub campaign_token_account: Account<'info, anchor_spl::token::TokenAccount>,
-    // #[account(mut)]
-    // pub authority_token_account: Account<'info, anchor_spl::token::TokenAccount>,
-    // pub token_program: Program<'info, anchor_spl::token::Token>,
     pub system_program: Program<'info, System>,
 }
 

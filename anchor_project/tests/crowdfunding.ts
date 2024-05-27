@@ -3,7 +3,6 @@ import { Program, utils } from "@coral-xyz/anchor";
 import { Crowdfunding } from "../target/types/crowdfunding";
 import { Commitment, Connection, PublicKey } from '@solana/web3.js';
 import { SystemProgram } from '@solana/web3.js';
-// import { Coder } from '@coral-xyz/anchor';
 import { BorshInstructionCoder } from "@coral-xyz/anchor";
 import { createHmac } from 'node:crypto';
 import { assert } from "chai";
@@ -23,13 +22,6 @@ describe("crowdfunding", () => {
 
   let campaignAccount: PublicKey;
   let initialAuthorityBalance: number;
-  // const [campaignAccount] = PublicKey.findProgramAddressSync(
-  //   [
-  //     utils.bytes.utf8.encode('CROWD_FUNDING_SEED'),
-  //     authority.publicKey!.toBuffer(),
-  //   ],
-  //   program.programId,
-  // );
 
   beforeEach(async () => {
 
@@ -39,7 +31,6 @@ describe("crowdfunding", () => {
   });
 
   it("Is initialized!", async () => {
-    // Add your test here.
     const goal: number = 0.1 * anchor.web3.LAMPORTS_PER_SOL;
     const deadline: number = (Date.now() / 1000 + 86400); // 1 day from now
     const url = "https://example.com/campaign?" + deadline;
@@ -51,7 +42,7 @@ describe("crowdfunding", () => {
     console.log("Campaign account: " + campaignAccount.toString());
 
     const tx = await initializeCampaign(provider, program, campaignAccount, authority, goal, deadline, url, url_seed);
-    // const tx = await initializeCampaign(provider, program, 1000, 86400 + Date.now() / 1000);
+
     console.log("Your transaction signature", tx);
 
     const campaignAccData = await program.account.campaign.fetch(campaignAccount);
@@ -60,8 +51,6 @@ describe("crowdfunding", () => {
     assert.equal(campaignAccData.authority.toString(), authority.publicKey.toString());
     assert.ok(campaignAccData.goal.eq(new anchor.BN(goal)));
     assert.ok(campaignAccData.deadline.eq(new anchor.BN(deadline)));
-    // console.log("Deadline campaign: " + campaignAccData.deadline.toString());
-    // console.log("Deadline to check: " + new anchor.BN(deadline).toString());
     const utf8ByteArray_url = stringToUtf8ByteArray(url);
     const paddedByteArray_url = padByteArrayWithZeroes(utf8ByteArray_url, 256);
 
@@ -69,7 +58,6 @@ describe("crowdfunding", () => {
   });
 
   it("Contribute to campaign", async () => {
-    // const campaignPublicKey = new PublicKey("");
     const amount = 0.5 * anchor.web3.LAMPORTS_PER_SOL;
     const goal: number = 0.1 * anchor.web3.LAMPORTS_PER_SOL;
     const deadline: number = (Date.now() / 1000 + 86400); // 1 day from now
@@ -139,7 +127,7 @@ describe("crowdfunding", () => {
   it("Error: Withdraw funds non-funded campaign", async () => {
     const amount = 0.1 * anchor.web3.LAMPORTS_PER_SOL;
     const goal: number = 0.5 * anchor.web3.LAMPORTS_PER_SOL;
-    const deadline: number = (Date.now() / 1000 + 5); // now + 10s
+    const deadline: number = (Date.now() / 1000 + 5); // now + 5 seconds
 
     const url = "https://example.com/campaign?" + deadline;
 
@@ -233,9 +221,6 @@ describe("crowdfunding", () => {
     const balance_authority1 = await provider.connection.getBalance(authority.publicKey);
     assert.equal(balance_authority1, initialAuthorityBalance - rent_balance);
 
-    // const tx_withdraw = await withdrawFunds(provider, program, campaignAccount, authority);
-    // console.log("Your transaction signature", tx_withdraw);
-
     let thisShouldFail = "This should fail"
     try {
       const tx_withdraw = await withdrawFunds(provider, program, campaignAccount, authority);
@@ -250,7 +235,7 @@ describe("crowdfunding", () => {
   it("Error: Contribute funds to closed campaign", async () => {
     const amount = 0.1 * anchor.web3.LAMPORTS_PER_SOL;
     const goal: number = 0.5 * anchor.web3.LAMPORTS_PER_SOL;
-    const deadline: number = (Date.now() / 1000 + 5); // now + 10s
+    const deadline: number = (Date.now() / 1000 + 5); // now + 5 seconds
 
     const url = "https://example.com/campaign?" + deadline;
 
@@ -261,7 +246,7 @@ describe("crowdfunding", () => {
     const tx_init = await initializeCampaign(provider, program, campaignAccount, authority, goal, deadline, url, url_seed);
     const balance_init = await provider.connection.getBalance(campaignAccount);
     assert.equal(balance_init, rent_balance);
-    //wait 10 seconds
+    //wait 5 seconds
     await new Promise(resolve => setTimeout(resolve, 5000));
 
     let thisShouldFail = "This should fail"
@@ -288,15 +273,9 @@ function getUrlSeed(url: string) {
 }
 
 function getCampaignAccount(program: anchor.Program<Crowdfunding>, authority: anchor.web3.Keypair, url_seed: string): PublicKey {
-  // const { createHmac } = await import('node:crypto');
-  // const hexString = createHmac('sha256', url)
-  //   .update('I love cupcakes')
-  //   .digest('hex');
-  // let url_seed = Uint8Array.from(Buffer.from(hexString, 'hex'));
 
   const [campaignAccount] = PublicKey.findProgramAddressSync(
     [
-      // utils.bytes.utf8.encode(url),
       utils.bytes.utf8.encode(url_seed),
       utils.bytes.utf8.encode('CF_SEED'),
       authority.publicKey!.toBuffer(),
@@ -355,8 +334,8 @@ async function initializeCampaign(provider: anchor.AnchorProvider, program: Prog
       .signers([authority])
       .rpc({ commitment: "confirmed", skipPreflight: true })
 
-    // console.log('Campaign initialized:', campaign.toString());
-    // console.log('Transaction signature:', tx);
+    console.log('Campaign initialized:', campaignAccount.toString());
+    console.log('Transaction signature:', tx);
     return tx;
 
   } catch (error) {
@@ -373,20 +352,22 @@ async function contributeToCampaign(
   const contributor = anchor.web3.Keypair.generate();
 
   await airdrop(provider.connection, contributor.publicKey);
-  // const campaign = await program.account.campaign.fetch(campaignPublicKey);
 
-  // const tx = await program.methods.contribute(
-  //   new anchor.BN(amount),
-  // )
-  //   .accounts({
-  //     campaign: campaignPublicKey,
-  //     contributor: contributor.publicKey,
-  //     systemProgram: anchor.web3.SystemProgram.programId,
-  //   })
-  //   .signers([contributor])
-  //   .instruction();
+  /*
+  // serialization trace (uncomment to check)
+  const tx0 = await program.methods.contribute(
+    new anchor.BN(amount),
+  )
+    .accounts({
+      campaign: campaignPublicKey,
+      contributor: contributor.publicKey,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    })
+    .signers([contributor])
+    .instruction();
 
-  // console.log("Serialized instruction:", tx);
+  console.log("Serialized instruction:", tx0);
+  */
 
   const tx = await program.methods.contribute(
     new anchor.BN(amount),
@@ -405,7 +386,6 @@ async function contributeToCampaign(
 }
 
 async function withdrawFunds(provider: anchor.AnchorProvider, program: Program<Crowdfunding>, campaignPublicKey: PublicKey, authority) {
-  // const campaign = await program.account.campaign.fetch(campaignPublicKey);
 
   const tx = await program.methods.withdraw()
     .accounts({
@@ -438,23 +418,3 @@ function padByteArrayWithZeroes(byteArray: Uint8Array, length: number): Uint8Arr
   paddedArray.set(byteArray, 0);
   return paddedArray;
 }
-
-// Usage example
-// (async () => {
-//   const provider = anchor.Provider.local();
-//   anchor.setProvider(provider);
-
-//   const idl = JSON.parse(require('fs').readFileSync('target/idl/crowdfunding.json', 'utf8'));
-//   const programId = new anchor.web3.PublicKey('<YOUR PROGRAM ID>');
-//   const program = new anchor.Program(idl, programId);
-
-//   const goal = 1000;
-//   const deadline = Date.now() / 1000 + 86400; // 1 day from now
-
-//   await initializeCampaign(provider, program, goal, deadline);
-//   // Later...
-//   const campaignPublicKey = '<CAMPAIGN PUBLIC KEY>';
-//   await contributeToCampaign(provider, program, campaignPublicKey, 500);
-//   // After the deadline...
-//   await withdrawFunds(provider, program, campaignPublicKey);
-// })();

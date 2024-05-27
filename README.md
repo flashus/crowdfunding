@@ -4,6 +4,8 @@ Anybody can contribute to campaign until deadline.
 Creator can withdraw tokens when campaign deadline passed and campaign reached minimal goal.
 #TODO: return contributions if deadline passed, but goal not reached. For now contributions stays in campaign account.
 
+deployed app link: https://crowdfunding-371rgb9qw-ilya-dyachenkos-projects.vercel.app/basics
+
 ## build and test
 
 ```bash

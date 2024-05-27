@@ -55,7 +55,7 @@ export const CrowdFundingFC: FC = () => {
             const program = new Program<Crowdfunding>(idl_object, provider);
             const url_seed = getUrlSeed(`${url}?campaignTime=${deadline}`).toString();
 
-            const campaignAccount = getCampaignAccount(program, provider.publicKey, url_seed);
+            const campaignAccount: PublicKey = getCampaignAccount(program, provider.publicKey, url_seed);
 
             const tx = await program.methods.initialize(
                 new BN(goal),
@@ -65,9 +65,7 @@ export const CrowdFundingFC: FC = () => {
             )
                 .accounts(
                     {
-                        campaign: campaignAccount,
                         authority: provider.publicKey,
-                        systemProgram: web3.SystemProgram.programId,
                     }
                 )
                 .rpc({ commitment: "confirmed", skipPreflight: true });
@@ -115,7 +113,6 @@ export const CrowdFundingFC: FC = () => {
             const tx = await program.methods.contribute(new BN(0.1 * web3.LAMPORTS_PER_SOL)).accounts({
                 campaign: campaignAccount,
                 contributor: provider.publicKey,
-                systemProgram: web3.SystemProgram.programId,
             }).rpc({ commitment: "confirmed", skipPreflight: true });
 
             notify({ type: 'success', message: `${op} successful`, txid: tx });
@@ -138,8 +135,8 @@ export const CrowdFundingFC: FC = () => {
 
             const tx = await program.methods.withdraw().accounts({
                 campaign: campaignAccount,
+                //@ts-ignore
                 authority: provider.publicKey,
-                systemProgram: web3.SystemProgram.programId,
             }).rpc({ commitment: "confirmed", skipPreflight: true });
 
             notify({ type: 'success', message: `${op} successful`, txid: tx });

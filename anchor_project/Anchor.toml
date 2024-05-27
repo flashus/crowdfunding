@@ -15,6 +15,7 @@ url = "https://api.apr.dev"
 
 [provider]
 cluster = "Devnet"
+# cluster = "Localnet"
 wallet = "./id.json"
 
 [scripts]

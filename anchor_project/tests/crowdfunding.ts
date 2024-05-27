@@ -183,9 +183,8 @@ describe("crowdfunding", () => {
       )
         .accounts(
           {
-            campaign: campaignAccount,
+            // campaign: campaignAccount,
             authority: authority.publicKey,
-            systemProgram: anchor.web3.SystemProgram.programId,
           }
         )
         .signers([authority])
@@ -326,9 +325,7 @@ async function initializeCampaign(provider: anchor.AnchorProvider, program: Prog
     )
       .accounts(
         {
-          campaign: campaignAccount,
           authority: authority.publicKey,
-          systemProgram: anchor.web3.SystemProgram.programId,
         }
       )
       .signers([authority])
@@ -375,7 +372,6 @@ async function contributeToCampaign(
     .accounts({
       campaign: campaignPublicKey,
       contributor: contributor.publicKey,
-      systemProgram: anchor.web3.SystemProgram.programId,
     })
     .signers([contributor])
     .rpc({ commitment: "confirmed", skipPreflight: true });
@@ -390,8 +386,8 @@ async function withdrawFunds(provider: anchor.AnchorProvider, program: Program<C
   const tx = await program.methods.withdraw()
     .accounts({
       campaign: campaignPublicKey,
+      //@ts-ignore
       authority: authority.publicKey,
-      systemProgram: anchor.web3.SystemProgram.programId,
     })
     .signers([authority])
     .rpc({ commitment: "confirmed", skipPreflight: true });

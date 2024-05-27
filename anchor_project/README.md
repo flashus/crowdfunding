@@ -1,1 +1,4 @@
-# TODO
+```bash
+anchor build
+anchor deploy
+```

@@ -1,3 +1,24 @@
+## crowdfunding app
+This project is a simple crowdfunding app that allows to create campaigns (current frontend only allows with fixed url/deadline/goal)
+Anybody can contribute to campaign until deadline.
+Creator can withdraw tokens when campaign deadline passed and campaign reached minimal goal.
+#TODO: return contributions if deadline passed, but goal not reached. For now contributions stays in campaign account.
+
+## build and test
+
+```bash
+cd anchor_project
+anchor build
+anchor test
+anchor deploy
+cd ..
+
+cd frontend
+yarn install
+yarn dev
+```
+
+
 [![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/OqQl59jg)
 ![School of Solana](https://github.com/School-of-Solana/.github/blob/main/assets/Season-5-Banner.png?raw=true)
 

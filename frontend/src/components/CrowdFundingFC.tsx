@@ -91,7 +91,7 @@ export const CrowdFundingFC: FC = () => {
 
             campaigns = campaigns.map(campaign => ({
                 ...campaign,
-                urlString: decoder.decode(new Uint8Array(campaign.url)),
+                urlString: decoder.decode(new Uint8Array(campaign.url.filter(ch => ch !== 0))),
             }));
             console.log(campaigns);
             setCampaigns(campaigns);
